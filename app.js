@@ -262,8 +262,8 @@ function buildSignatureHtml(data) {
             <td style="padding:18px 0 0 0;font-family:Arial,'Malgun Gothic',sans-serif;color:#22312c;">
               <div style="font-size:16px;line-height:1.4;font-weight:bold;color:#17352e;">${escapeHtml(data.senderName)}</div>
               <div style="padding-top:3px;font-size:13px;line-height:1.5;color:#586762;">${escapeHtml(data.senderCompany)}</div>
-              <div style="padding-top:10px;font-size:13px;line-height:1.6;color:#33413d;">t ${escapeHtml(data.senderPhone)}</div>
-              <div style="font-size:13px;line-height:1.6;color:#33413d;">e ${escapeHtml(data.senderEmail)}</div>
+              <div style="padding-top:10px;font-size:13px;line-height:1.6;color:#33413d;">☎ ${escapeHtml(data.senderPhone)}</div>
+              <div style="font-size:13px;line-height:1.6;color:#33413d;">✉ ${escapeHtml(data.senderEmail)}</div>
               <div style="padding-top:8px;font-size:12px;line-height:1.6;color:#66736e;">${escapeHtml(data.senderExtra)}</div>
             </td>
           </tr>
@@ -327,8 +327,8 @@ function buildShortPlainText(data, template) {
     "감사합니다.",
     "",
     `${data.senderName} ${data.senderCompany}`,
-    `t ${data.senderPhone}`,
-    `e ${data.senderEmail}`,
+    `☎ ${data.senderPhone}`,
+    `✉ ${data.senderEmail}`,
     data.senderExtra,
   ].join("\n");
 }
@@ -385,8 +385,8 @@ function buildPlainText(proposal, data) {
     "감사합니다.",
     "",
     `${data.senderName} ${data.senderCompany}`,
-    `t ${data.senderPhone}`,
-    `e ${data.senderEmail}`,
+    `☎ ${data.senderPhone}`,
+    `✉ ${data.senderEmail}`,
     data.senderExtra,
   ].join("\n");
 }
@@ -440,8 +440,8 @@ function renderShortMail(data, template, toastMessage) {
     `가능하시다면 ${data.cta} 가능 여부만 짧게 회신 부탁드립니다.`,
     "",
     `${data.senderName} ${data.senderCompany}`,
-    `t ${data.senderPhone}`,
-    `e ${data.senderEmail}`,
+    `☎ ${data.senderPhone}`,
+    `✉ ${data.senderEmail}`,
   ].join("\n");
   $("#html-result").innerHTML = state.emailHtml;
   $("#plain-result").textContent = state.plain;
