@@ -415,8 +415,8 @@ function renderProposal(proposal, data, template, toastMessage) {
       `가능하시다면 ${data.cta} 가능 여부만 짧게 회신 부탁드립니다.`,
       "",
       `${data.senderName} ${data.senderCompany}`,
-      `t ${data.senderPhone}`,
-      `e ${data.senderEmail}`,
+      `☎ ${data.senderPhone}`,
+      `✉ ${data.senderEmail}`,
     ].join("\n");
 
   $("#html-result").innerHTML = state.emailHtml;
