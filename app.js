@@ -620,19 +620,32 @@ function renderDraftList() {
 }
 
 function renderTemplateCards() {
-  $("#template-cards").innerHTML = Object.values(templates)
+  $("#template-cards").innerHTML = Object.entries(templates)
     .map(
-      (template) => `
-        <article class="template-card">
+      ([id, template]) => `
+        <article class="template-card" role="button" tabindex="0" data-template-id="${id}" style="cursor:pointer;">
           <div>
             <p class="eyebrow">메일 구조</p>
             <h3>${template.name}</h3>
           </div>
           <p>${template.description}</p>
           <ul>${template.points.map((point) => `<li>${point}</li>`).join("")}</ul>
+          <p style="margin-top:12px;font-size:12px;color:#0f7b68;font-weight:bold;">→ 이 템플릿으로 생성</p>
         </article>`
     )
     .join("");
+
+  $("#template-cards").addEventListener("click", (event) => {
+    const card = event.target.closest("[data-template-id]");
+    if (!card) return;
+    $("#template").value = card.dataset.templateId;
+    $$(".nav-item").forEach((item) => item.classList.remove("active"));
+    $(".nav-item[data-view='builder']").classList.add("active");
+    $$(".view").forEach((view) => view.classList.remove("active"));
+    $("#builder-view").classList.add("active");
+    buildMail({ localOnly: true });
+    showToast(`${templates[card.dataset.templateId].name}으로 메일을 생성했습니다.`);
+  });
 }
 
 function showToast(message) {
@@ -755,7 +768,7 @@ function wireEvents() {
   $("#save-draft").addEventListener("click", () => {
     const drafts = JSON.parse(localStorage.getItem("saleskit-drafts") || "[]");
     const html = currentEmailHtml();
-    drafts.unshift({ createdAt: new Date().toISOString(), plain: htmlToPlainText(html), html });
+    drafts.unshift({ createdAt: new Date().toISOString(), plain: htmlToPlainText(html), html, followup: state.followup });
     localStorage.setItem("saleskit-drafts", JSON.stringify(drafts.slice(0, 20)));
     renderDraftList();
     showToast("초안을 브라우저에 저장했습니다.");
@@ -768,8 +781,10 @@ function wireEvents() {
     if (!draft) return;
     state.emailHtml = draft.html;
     state.plain = draft.plain;
+    state.followup = draft.followup || "";
     $("#html-result").innerHTML = draft.html;
     $("#plain-result").textContent = draft.plain;
+    $("#followup-result").textContent = state.followup;
     renderSafetyPanel();
     showToast("저장된 초안을 불러왔습니다.");
   });
