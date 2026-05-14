@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SalesKit AI MVP</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="서비스 메뉴">
+        <div class="brand-block">
+          <div class="brand-mark">SK</div>
+          <div>
+            <p class="brand-name">SalesKit AI</p>
+            <p class="brand-caption">콜드메일 템플릿 제작 도구</p>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="주요 기능">
+          <button class="nav-item active" type="button" data-view="builder">
+            <span aria-hidden="true">✦</span>
+            메일 생성
+          </button>
+          <button class="nav-item" type="button" data-view="library">
+            <span aria-hidden="true">▦</span>
+            템플릿 라이브러리
+          </button>
+          <button class="nav-item" type="button" data-view="pricing">
+            <span aria-hidden="true">₩</span>
+            구독 설계
+          </button>
+          <button class="nav-item" type="button" data-view="roadmap">
+            <span aria-hidden="true">⌁</span>
+            MVP 로드맵
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <p class="eyebrow">초기 타깃</p>
+          <strong>B2B 영업 사원</strong>
+          <span>업체 분석, 메일 작성, 후속 연락 초안을 한 번에 준비합니다.</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">구독형 SaaS MVP</p>
+            <h1>B2B 콜드메일 생성 워크벤치</h1>
+          </div>
+          <div class="plan-pill">
+            <span>Starter</span>
+            <strong>월 19,000원</strong>
+          </div>
+        </header>
+
+        <section class="view active" id="builder-view">
+          <section class="workspace-grid">
+            <form class="panel composer" id="mail-form">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">입력</p>
+                  <h2>타깃과 제안 조건</h2>
+                </div>
+                <button class="icon-button" type="button" id="reset-button" title="초기화">↺</button>
+              </div>
+
+              <label>
+                타깃 업체 URL
+                <input id="target-url" type="url" value="https://example.co.kr" placeholder="https://target-company.co.kr" />
+              </label>
+
+              <label>
+                내가 제안하는 서비스
+                <textarea id="offer" rows="3" placeholder="예: B2B SaaS 도입 컨설팅, 홈페이지 리뉴얼, 채용 솔루션">B2B 영업팀을 위한 CRM 자동화 솔루션</textarea>
+              </label>
+
+              <div class="form-row">
+                <label>
+                  수신자
+                  <select id="recipient">
+                    <option>대표</option>
+                    <option>영업 팀장</option>
+                    <option>마케팅 담당자</option>
+                    <option>인사 담당자</option>
+                    <option>구매 담당자</option>
+                    <option>직접 입력</option>
+                  </select>
+                </label>
+                <label>
+                  톤
+                  <select id="tone">
+                    <option>정중한</option>
+                    <option>짧고 직설적인</option>
+                    <option>컨설팅형</option>
+                    <option>친근한</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="hidden-field" id="custom-recipient-field">
+                직접 입력 수신자
+                <input id="custom-recipient" type="text" placeholder="예: 브랜드 담당자, 병원장, 원장, MD" />
+              </label>
+
+              <div class="form-row">
+                <label>
+                  영업 단계
+                  <select id="sales-stage">
+                    <option>첫 접촉</option>
+                    <option>후속 연락</option>
+                    <option>미팅 확정</option>
+                    <option>제안서 전달</option>
+                    <option>재접촉</option>
+                  </select>
+                </label>
+                <label>
+                  수신자 관점
+                  <select id="persona">
+                    <option>의사결정권자</option>
+                    <option>실무자</option>
+                    <option>대표/임원</option>
+                    <option>구매 담당자</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                메일 템플릿
+                <select id="template">
+                  <option value="problem">문제제기형</option>
+                  <option value="diagnosis">데이터 진단형</option>
+                  <option value="partnership">제휴 제안형</option>
+                  <option value="short">대표자용 10초형</option>
+                  <option value="consulting">컨설팅 리포트형</option>
+                </select>
+              </label>
+
+              <label>
+                CTA
+                <select id="cta">
+                  <option>15분 미팅 제안</option>
+                  <option>무료 진단 리포트 제공</option>
+                  <option>자료 회신 요청</option>
+                  <option>데모 일정 제안</option>
+                </select>
+              </label>
+
+              <label>
+                포함하면 안 되는 표현
+                <input id="avoid" type="text" value="성과 보장, 최저가, 무조건" />
+              </label>
+
+              <div class="field-group">
+                <p class="field-group-title">명함 정보</p>
+                <div class="form-row">
+                  <label>
+                    발신자
+                    <input id="sender-name" type="text" value="박경섭 대리" />
+                  </label>
+                  <label>
+                    회사/직함
+                    <input id="sender-company" type="text" value="프로그레스미디어 | AE" />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    연락처
+                    <input id="sender-phone" type="text" value="02-851-8922 | 010-2974-6203" />
+                  </label>
+                  <label>
+                    이메일
+                    <input id="sender-email" type="email" value="pks1130@progress-media.co.kr" />
+                  </label>
+                </div>
+                <label>
+                  회사 주소
+                  <input id="sender-extra" type="text" value="서울 구로구 디지털로26길 43" />
+                </label>
+              </div>
+
+              <button class="primary-button" type="submit">메일 생성</button>
+            </form>
+
+            <section class="panel result-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">결과</p>
+                  <h2>분석과 생성 메일</h2>
+                </div>
+                <div class="score-badge">
+                  <span>적합도</span>
+                  <strong id="score">86</strong>
+                </div>
+              </div>
+
+              <div class="insight-grid" id="insights"></div>
+
+              <div class="safety-panel" id="safety-panel"></div>
+
+              <div class="compatibility-note">
+                <strong>메일 호환 모드</strong>
+                <span>Gmail, 네이버메일, 다음메일 작성창 붙여넣기를 고려해 table layout과 inline style로 생성합니다.</span>
+              </div>
+
+              <div class="tabs" role="tablist" aria-label="결과 보기">
+                <button class="tab active" type="button" data-result="html">HTML 미리보기</button>
+                <button class="tab" type="button" data-result="plain">텍스트</button>
+                <button class="tab" type="button" data-result="followup">후속메일</button>
+              </div>
+
+              <div class="edit-tools">
+                <button class="secondary-button" type="button" id="toggle-edit">직접 수정 켜기</button>
+                <label class="ai-edit-label">
+                  AI 수정 요청
+                  <textarea id="ai-edit-prompt" rows="2" placeholder="예: 더 정중하게, 더 짧게, 미팅 제안을 강하게, 진단 결과를 부드럽게"></textarea>
+                </label>
+                <button class="secondary-button" type="button" id="apply-ai-edit">수정 요청 반영</button>
+              </div>
+
+              <div class="mail-preview" id="html-result"></div>
+              <pre class="text-result hidden" id="plain-result"></pre>
+              <pre class="text-result hidden" id="followup-result"></pre>
+
+              <div class="result-actions">
+                <button class="secondary-button" type="button" id="copy-text">텍스트 복사</button>
+                <button class="secondary-button" type="button" id="copy-html">메일용 HTML 복사</button>
+                <button class="secondary-button" type="button" id="save-draft">초안 저장</button>
+              </div>
+
+              <details class="draft-history">
+                <summary>저장된 초안</summary>
+                <div id="draft-list"></div>
+              </details>
+            </section>
+          </section>
+        </section>
+
+        <section class="view" id="library-view">
+          <section class="section-header">
+            <p class="eyebrow">템플릿 라이브러리</p>
+            <h2>영업 사원이 고르는 메일 구조</h2>
+          </section>
+          <div class="template-grid" id="template-cards"></div>
+        </section>
+
+        <section class="view" id="pricing-view">
+          <section class="section-header">
+            <p class="eyebrow">구독형 수익모델</p>
+            <h2>처음 팔기 쉬운 가격 구조</h2>
+          </section>
+          <div class="pricing-grid">
+            <article class="pricing-card">
+              <p class="eyebrow">Starter</p>
+              <h3>월 19,000원</h3>
+              <p>개인 영업 사원용. 월 100건 생성, 기본 템플릿, 복사 기능.</p>
+            </article>
+            <article class="pricing-card featured">
+              <p class="eyebrow">Pro</p>
+              <h3>월 49,000원</h3>
+              <p>실무자 핵심 플랜. 월 500건 생성, HTML 템플릿, 후속메일, 저장함.</p>
+            </article>
+            <article class="pricing-card">
+              <p class="eyebrow">Team</p>
+              <h3>월 149,000원</h3>
+              <p>소규모 영업팀용. 팀 템플릿, 공유 라이브러리, 관리자 통계.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="roadmap-view">
+          <section class="section-header">
+            <p class="eyebrow">제작 순서</p>
+            <h2>2주 MVP 범위</h2>
+          </section>
+          <ol class="roadmap-list">
+            <li><strong>1단계</strong><span>URL, 제안 서비스, 템플릿 선택 기반 메일 생성 화면 완성</span></li>
+            <li><strong>2단계</strong><span>OpenAI API와 웹사이트 텍스트 추출 기능 연결</span></li>
+            <li><strong>3단계</strong><span>사용자 저장함, 템플릿 즐겨찾기, 생성 이력 추가</span></li>
+            <li><strong>4단계</strong><span>결제 전환용 무료 체험, 월 생성량 제한, 구독 플랜 적용</span></li>
+            <li><strong>5단계</strong><span>PPT 제안서 초안 생성 기능을 Pro 플랜으로 확장</span></li>
+          </ol>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
