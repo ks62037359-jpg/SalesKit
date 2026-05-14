@@ -19,8 +19,8 @@ const templates = {
   },
   short: {
     name: "대표자용 요약형",
-    description: "바쁜 의사결정권자에게 목차와 핵심만 간결하게 전달하는 구조입니다.",
-    points: ["요약", "진단", "제안", "효과", "미팅"],
+    description: "바쁜 의사결정권자에게 인사·핵심 제안·CTA를 세 줄로 전달하는 구조입니다.",
+    points: ["인사", "핵심 제안", "CTA", "명함"],
     subject: (company) => `[${company}] 대표님께 짧은 개선 제안드립니다`,
   },
   consulting: {
@@ -38,6 +38,8 @@ const state = {
 };
 
 const bannedPhrases = ["성과 보장", "무조건", "최저가", "100% 개선", "반드시 1위"];
+
+const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
 
 const SENDER_STORAGE_KEY = "saleskit-sender";
 const SENDER_FIELDS = ["sender-name", "sender-company", "sender-phone", "sender-email", "sender-extra"];
@@ -453,7 +455,7 @@ function renderShortMail(data, template, toastMessage) {
 async function buildMail(options = {}) {
   const data = getFormData();
   const template = templates[data.templateId] || templates.problem;
-  if (!options.localOnly) {
+  if (!options.localOnly && IS_LOCAL) {
     try {
       const proposal = await postJson("/api/generate-mail", {
         ...data,
@@ -509,6 +511,7 @@ async function applyLocalAiEdit() {
   const data = getFormData();
   const template = templates[data.templateId] || templates.problem;
   try {
+    if (!IS_LOCAL) throw new Error("API not available");
     const proposal = await postJson("/api/edit-mail", {
       request,
       currentPlainText: htmlToPlainText(currentEmailHtml()),
@@ -544,8 +547,8 @@ async function applyLocalAiEdit() {
   }
   if (request.includes("진단")) {
     replacements.push([
-      "현재는 고객이 관심을 가져도 다음 행동으로 이어지는 설명 구조와 제안 포인트가 조금 더 정리되면 좋겠습니다.",
-      "진단 기준으로는 고객이 문의 전 확인하는 메시지와 다음 행동 유도 구조를 조금 더 선명하게 만들 여지가 있습니다.",
+      "다음 행동 유도 포인트가 더 정리되면 좋을 것으로 보입니다.",
+      "다음 행동 유도 포인트를 더 선명하게 정리하면 문의 전환율을 높일 수 있습니다.",
     ]);
   }
   if (request.includes("대표")) {
@@ -713,6 +716,7 @@ function wireEvents() {
     $("#sender-phone").value = "02-851-8922 | 010-2974-6203";
     $("#sender-email").value = "pks1130@progress-media.co.kr";
     $("#sender-extra").value = "서울 구로구 디지털로26길 43";
+    saveSenderInfo();
     buildMail({ localOnly: true });
   });
 
