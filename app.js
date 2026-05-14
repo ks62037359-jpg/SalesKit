@@ -39,6 +39,28 @@ const state = {
 
 const bannedPhrases = ["성과 보장", "무조건", "최저가", "100% 개선", "반드시 1위"];
 
+const SENDER_STORAGE_KEY = "saleskit-sender";
+const SENDER_FIELDS = ["sender-name", "sender-company", "sender-phone", "sender-email", "sender-extra"];
+
+function saveSenderInfo() {
+  const info = {};
+  SENDER_FIELDS.forEach((id) => { info[id] = $(`#${id}`)?.value || ""; });
+  localStorage.setItem(SENDER_STORAGE_KEY, JSON.stringify(info));
+}
+
+function loadSenderInfo() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SENDER_STORAGE_KEY) || "null");
+    if (!saved) return;
+    SENDER_FIELDS.forEach((id) => {
+      const el = $(`#${id}`);
+      if (el && saved[id] != null) el.value = saved[id];
+    });
+  } catch {
+    // Ignore parse errors.
+  }
+}
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
@@ -67,11 +89,6 @@ function inferIndustry(offer) {
   if (value.includes("광고") || value.includes("검색") || value.includes("마케팅")) return "검색/마케팅";
   if (value.includes("영상") || value.includes("콘텐츠")) return "콘텐츠 제작";
   return "B2B 서비스";
-}
-
-function scoreFromText(text, offset) {
-  const base = Array.from(text).reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return 48 + ((base + offset) % 25);
 }
 
 function objectParticle(text) {
@@ -115,10 +132,6 @@ function getFormData() {
 }
 
 function buildProposal(data, template) {
-  const seo = scoreFromText(data.company + data.offer, 5);
-  const aeo = scoreFromText(data.company + data.industry, 11);
-  const geo = scoreFromText(data.url + data.offer, 17);
-
   return {
     title: template.subject(data.company, data.offer),
     contents: ["01 발신 배경", "02 진단 결과", "03 핵심 솔루션", "04 기대 효과", "05 미팅 제안"],
@@ -141,8 +154,7 @@ function buildProposal(data, template) {
         title: "진단 결과",
         body: [
           `사전 진단 기준: ${data.url || "타깃 URL"}`,
-          `SEO 점수 ${seo}/100 · AEO 점수 ${aeo}/100 · GEO 점수 ${geo}/100`,
-          "현재는 고객이 관심을 가져도 다음 행동으로 이어지는 설명 구조와 제안 포인트가 조금 더 정리되면 좋겠습니다.",
+          `관찰된 개선 여지: ${data.company}의 웹사이트에서 ${data.persona}가 확인할 핵심 메시지 구조와 다음 행동 유도 포인트가 더 정리되면 좋을 것으로 보입니다.`,
         ],
       },
       {
@@ -258,6 +270,67 @@ function buildSignatureHtml(data) {
     </tr>`;
 }
 
+function buildShortEmailHtml(data, template) {
+  const greeting = `안녕하세요, ${data.recipient}님. ${data.senderName}입니다.`;
+  const pitch = `${data.company}에 ${data.offer}${objectParticle(data.offer)} 적용해 ${data.persona}가 바로 확인할 수 있는 개선 포인트가 있어 짧게 공유드립니다.`;
+  const ctaLine = `${data.cta} 가능하신지 짧게 회신 부탁드립니다.`;
+  const title = template.subject(data.company, data.offer);
+  return `
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background-color:#f4f7f5;margin:0;padding:0;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;max-width:660px;background-color:#ffffff;border:1px solid #d8e0dc;">
+        <tr>
+          <td style="padding:22px 24px;background-color:#17352e;font-family:Arial,'Malgun Gothic',sans-serif;color:#ffffff;">
+            <div style="font-size:12px;line-height:1.4;font-weight:bold;color:#b9d8cf;">Sales Proposal</div>
+            <div style="padding-top:8px;font-size:22px;line-height:1.35;font-weight:bold;color:#ffffff;">${escapeHtml(title)}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 24px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
+              <tr>
+                <td style="padding:0 0 14px 0;font-family:Arial,'Malgun Gothic',sans-serif;font-size:15px;line-height:1.7;color:#22312c;">${escapeHtml(greeting)}</td>
+              </tr>
+              <tr>
+                <td style="padding:0 0 14px 0;font-family:Arial,'Malgun Gothic',sans-serif;font-size:15px;line-height:1.7;color:#22312c;">${escapeHtml(pitch)}</td>
+              </tr>
+              <tr>
+                <td style="padding:0 0 0 0;font-family:Arial,'Malgun Gothic',sans-serif;font-size:15px;line-height:1.7;color:#0f7b68;font-weight:bold;">${escapeHtml(ctaLine)}</td>
+              </tr>
+              ${buildSignatureHtml(data)}
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`.trim();
+}
+
+function buildShortPlainText(data, template) {
+  const greeting = `안녕하세요, ${data.recipient}님. ${data.senderName}입니다.`;
+  const pitch = `${data.company}에 ${data.offer}${objectParticle(data.offer)} 적용해 ${data.persona}가 바로 확인할 수 있는 개선 포인트가 있어 짧게 공유드립니다.`;
+  const ctaLine = `${data.cta} 가능하신지 짧게 회신 부탁드립니다.`;
+  const title = template.subject(data.company, data.offer);
+  return [
+    `[제목] ${title}`,
+    "",
+    greeting,
+    "",
+    pitch,
+    "",
+    ctaLine,
+    "",
+    "감사합니다.",
+    "",
+    `${data.senderName} ${data.senderCompany}`,
+    `t ${data.senderPhone}`,
+    `e ${data.senderEmail}`,
+    data.senderExtra,
+  ].join("\n");
+}
+
 function buildEmailHtml(proposal, data) {
   return `
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background-color:#f4f7f5;margin:0;padding:0;">
@@ -327,7 +400,6 @@ function htmlToPlainText(html) {
 }
 
 function renderProposal(proposal, data, template, toastMessage) {
-  const score = Math.min(96, 76 + data.offer.length % 15 + proposal.sections.length);
   state.emailHtml = buildEmailHtml(proposal, data);
   state.plain = buildPlainText(proposal, data);
   state.followup =
@@ -345,7 +417,30 @@ function renderProposal(proposal, data, template, toastMessage) {
       `e ${data.senderEmail}`,
     ].join("\n");
 
-  $("#score").textContent = score;
+  $("#html-result").innerHTML = state.emailHtml;
+  $("#plain-result").textContent = state.plain;
+  $("#followup-result").textContent = state.followup;
+  renderInsights(data, template);
+  renderSafetyPanel();
+  renderDraftList();
+  if (toastMessage) showToast(toastMessage);
+}
+
+function renderShortMail(data, template, toastMessage) {
+  state.emailHtml = buildShortEmailHtml(data, template);
+  state.plain = buildShortPlainText(data, template);
+  state.followup = [
+    `[후속메일 제목] ${data.company} 관련 제안, 짧게 다시 공유드립니다`,
+    "",
+    `${data.recipient}님, 안녕하세요.`,
+    "며칠 전 공유드린 제안이 바쁘신 일정 중 묻혔을 것 같아 한 번만 더 연락드립니다.",
+    `${data.company}에는 ${data.offer}를 바로 크게 도입하기보다, 작은 범위에서 먼저 검증하는 방식이 적합하다고 봤습니다.`,
+    `가능하시다면 ${data.cta} 가능 여부만 짧게 회신 부탁드립니다.`,
+    "",
+    `${data.senderName} ${data.senderCompany}`,
+    `t ${data.senderPhone}`,
+    `e ${data.senderEmail}`,
+  ].join("\n");
   $("#html-result").innerHTML = state.emailHtml;
   $("#plain-result").textContent = state.plain;
   $("#followup-result").textContent = state.followup;
@@ -371,6 +466,10 @@ async function buildMail(options = {}) {
     } catch (error) {
       console.warn(error);
     }
+  }
+  if (data.templateId === "short") {
+    renderShortMail(data, template, options.silent ? "" : "로컬 규칙 기반으로 요약 메일을 생성했습니다.");
+    return;
   }
   renderProposal(buildProposal(data, template), data, template, options.silent ? "" : "로컬 규칙 기반으로 제안 메일을 생성했습니다.");
 }
@@ -471,7 +570,7 @@ async function applyLocalAiEdit() {
 
 function renderInsights(data, template) {
   const insights = [
-    ["업체 추정", `${data.company} / ${data.industry}`],
+    ["제안 서비스 분류", `${data.industry}`],
     ["영업 단계", `${data.salesStage} · ${data.persona}`],
     ["메일 구조", "타이틀 → 목차 → 섹션 본문 → 명함"],
   ];
@@ -672,6 +771,10 @@ function wireEvents() {
   });
 
   $("#recipient").addEventListener("change", toggleCustomRecipient);
+
+  SENDER_FIELDS.forEach((id) => {
+    $(`#${id}`)?.addEventListener("input", saveSenderInfo);
+  });
 }
 
 function toggleCustomRecipient() {
@@ -680,6 +783,7 @@ function toggleCustomRecipient() {
   if (isCustom) $("#custom-recipient").focus();
 }
 
+loadSenderInfo();
 renderTemplateCards();
 wireEvents();
 buildMail({ localOnly: true, silent: true });
